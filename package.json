@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
   },
   "repository": {
     "type": "git",
@@ -15,12 +16,12 @@
     "url": "https://github.com/rafaelacortinovis-code/api_saep/issues"
   },
   "homepage": "https://github.com/rafaelacortinovis-code/api_saep#readme",
-  "description": "",
   "dependencies": {
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
-    "express": "^5.2.1",
-    "mysql2": "^3.22.4",
+    "express": "^5.3.0",
+    "mysql2": "^3.24.6",
     "nodemon": "^3.1.14"
-  }
+  },
+  "description": ""
 }
