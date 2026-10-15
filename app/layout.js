@@ -1,8 +1,8 @@
 ﻿import './globals.css';
 
 export const metadata = {
-  title: 'Produtos | Saep',
-  description: 'Gerencie produtos e estoque.'
+  title: 'Saep | Gestão de produtos e estoque',
+  description: 'Painel de gestão de produtos, estoque, categorias e usuários.'
 };
 
 export default function RootLayout({ children }) {

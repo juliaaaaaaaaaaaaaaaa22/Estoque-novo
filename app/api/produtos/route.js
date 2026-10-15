@@ -28,12 +28,28 @@ export async function POST(request) {
     if (!String(nome || '').trim() || !Number.isFinite(precoNumero) || precoNumero < 0 || !Number.isInteger(estoqueNumero) || estoqueNumero < 0) {
       return NextResponse.json({ mensagem: 'Informe nome, preço válido e estoque inteiro igual ou maior que zero.' }, { status: 400 });
     }
-    const [resultado] = await conexao.execute(
-      'INSERT INTO produtos (nome, descricao, categoria, preco, estoque) VALUES (?, ?, ?, ?, ?)',
-      [String(nome).trim(), String(descricao).trim(), String(categoria).trim(), precoNumero, estoqueNumero]
-    );
-    const [linhas] = await conexao.execute('SELECT * FROM produtos WHERE id = ?', [resultado.insertId]);
-    return NextResponse.json(linhas[0], { status: 201 });
+    const transacao = await conexao.getConnection();
+    try {
+      await transacao.beginTransaction();
+      const [resultado] = await transacao.execute(
+        'INSERT INTO produtos (nome, descricao, categoria, preco, estoque) VALUES (?, ?, ?, ?, ?)',
+        [String(nome).trim(), String(descricao).trim(), String(categoria).trim(), precoNumero, estoqueNumero]
+      );
+      if (estoqueNumero > 0) {
+        await transacao.execute(
+          'INSERT INTO movimentacoes_estoque (produto_id, tipo, quantidade, observacao) VALUES (?, ?, ?, ?)',
+          [resultado.insertId, 'entrada', estoqueNumero, 'Estoque inicial do produto']
+        );
+      }
+      const [linhas] = await transacao.execute('SELECT * FROM produtos WHERE id = ?', [resultado.insertId]);
+      await transacao.commit();
+      return NextResponse.json(linhas[0], { status: 201 });
+    } catch (error) {
+      await transacao.rollback();
+      throw error;
+    } finally {
+      transacao.release();
+    }
   } catch (error) {
     console.error('Erro ao criar produto:', error);
     return NextResponse.json({ mensagem: 'Não foi possível salvar o produto.' }, { status: 500 });
